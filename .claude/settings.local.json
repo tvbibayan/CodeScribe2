@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(printf:*)",
+      "Bash(for dir in */)",
+      "Bash(do echo \"=== $dir ===\")",
+      "Bash(done)",
+      "Bash(while read dir)",
+      "Bash(do echo \"$dir\")",
+      "Bash(cd \"/Users/abutabib/Desktop/Desktop - Abu\"*\"s MacBook Air\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

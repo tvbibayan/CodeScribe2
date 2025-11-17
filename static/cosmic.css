@@ -1,0 +1,126 @@
+/* Animation keyframes */
+@keyframes cosmicPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+@keyframes starfieldRotate {
+    0% { transform: rotate(0deg) scale(1); }
+    100% { transform: rotate(360deg) scale(1.5); }
+}
+
+@keyframes energyFlow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+/* Cosmic elements */
+.cosmic-text {
+    color: var(--accent-secondary);
+    font-size: 1.25rem;
+    max-width: 600px;
+    margin: 0 auto;
+    font-weight: 400;
+    text-shadow: 0 0 10px var(--accent-secondary);
+    animation: cosmicPulse 4s ease-in-out infinite;
+    position: relative;
+}
+
+.cosmic-text::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 2px;
+    background: var(--aurora-gradient);
+    filter: blur(2px);
+    animation: lineWidth 6s ease-in-out infinite;
+}
+
+.cosmic-frame {
+    position: relative;
+    padding: 2px;
+    background: var(--aurora-gradient);
+    background-size: 200% 200%;
+    animation: energyFlow 6s linear infinite;
+    border-radius: 15px;
+}
+
+.floating-shape {
+    position: fixed;
+    background: radial-gradient(
+        circle at center,
+        rgba(129, 140, 248, 0.08) 0%,
+        rgba(99, 102, 241, 0.04) 100%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+    backdrop-filter: blur(80px);
+}
+
+.energy-pulse {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--aurora-gradient);
+    opacity: 0;
+    filter: blur(10px);
+    transition: opacity 0.3s;
+}
+
+.cyber-button:hover .energy-pulse {
+    opacity: 0.5;
+    animation: energyPulse 2s ease-in-out infinite;
+}
+
+/* Orbital loader animation */
+.orbit-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: var(--accent-primary);
+    border-right-color: var(--accent-secondary);
+    border-bottom-color: var(--accent-tertiary);
+    animation: orbitSpin 1.5s linear infinite;
+}
+
+.orbit-ring::before,
+.orbit-ring::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+}
+
+.orbit-ring::before {
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 2px solid transparent;
+    border-top-color: var(--accent-secondary);
+    border-left-color: var(--accent-tertiary);
+    animation: orbitSpin 2s linear infinite reverse;
+}
+
+.orbit-ring::after {
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    border: 2px solid transparent;
+    border-top-color: var(--accent-tertiary);
+    border-left-color: var(--accent-primary);
+    animation: orbitSpin 1.2s linear infinite;
+}
+
+@keyframes orbitSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
