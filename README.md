@@ -24,8 +24,8 @@ CodeScribe is a beautiful web application that uses Google Gemini AI to automati
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/codeScribe.git
-   cd codeScribe
+   git clone https://github.com/tvbibayan/CodeScribe2.git
+   cd CodeScribe2
    ```
 
 2. **Create a virtual environment**
