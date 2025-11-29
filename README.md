@@ -6,14 +6,14 @@ CodeScribe is a beautiful web application that uses Google Gemini AI to automati
 ![Python](https://img.shields.io/badge/Python-3.9+-blue)
 ![Flask](https://img.shields.io/badge/Flask-3.0-green)
 
-## ✨ Features
+##  Features
 
-- 🤖 **AI-Powered Documentation** - Uses Google Gemini to analyze and document code
-- 📝 **Markdown Output** - Clean, structured documentation in Markdown format
-- 🎨 **Beautiful UI** - Modern, responsive design with elegant animations
-- ⚡ **Fast & Simple** - Just paste your code and click generate
+- **AI-Powered Documentation** - Uses Google Gemini to analyze and document code
+- **Markdown Output** - Clean, structured documentation in Markdown format
+-  **Beautiful UI** - Modern, responsive design with elegant animations
+- **Fast & Simple** - Just paste your code and click generate
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 
@@ -99,13 +99,9 @@ The application uses the following environment variables:
 3. Add your `GEMINI_API_KEY` as an environment variable
 4. Deploy!
 
-## 📄 License
 
-MIT License - feel free to use this project for learning and personal use.
 
-## 🤝 Contributing
 
-Contributions are welcome! Feel free to open issues or submit pull requests.
 
 ---
 
