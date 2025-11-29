@@ -13,8 +13,11 @@
     <link rel="stylesheet" href="/static/cosmic.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/canvas-effect.js"></script>
 </head>
 <body>
+    <canvas id="canvas-effect" class="canvas-effect-layer"></canvas>
     <div class="container">
         <header>
             <nav class="top-nav">
@@ -38,36 +41,61 @@
                 </div>
             </div>
         </header>
-        <main class="dashboard-grid">
-            <section class="panel panel-input">
-                <h2 class="panel-title">Input Playground</h2>
-                <p class="panel-subtitle">Paste any Python, JavaScript, or backend snippet. We’ll do the rest.</p>
-                <label for="code-input" class="input-label">Source code</label>
-                <div class="code-container">
-                    <textarea id="code-input" class="code-area" placeholder="Paste your code here..." spellcheck="false" aria-label="Code input area"></textarea>
+        <main class="live-workbench">
+            <section class="panel panel-input live-editor-panel">
+                <div class="live-editor-grid editor-container">
+                    <div class="editor-column">
+                        <h2 class="panel-title">Input Playground</h2>
+                        <p class="panel-subtitle">Paste any Python, JavaScript, or backend snippet. We’ll do the rest.</p>
+                        <label for="code-input" class="input-label">Source code</label>
+                        <div class="code-container">
+                            <textarea id="code-input" class="code-area" placeholder="Paste your code here..." spellcheck="false" aria-label="Code input area"></textarea>
+                        </div>
+                        <label for="trace-input" class="input-label subtle">Optional runtime invocation</label>
+                        <div class="code-container trace-shell">
+                            <textarea id="trace-input" class="trace-area" placeholder="Optional: e.g., result = main(); print(result)" spellcheck="false" aria-label="Trace input area"></textarea>
+                        </div>
+                        <p class="helper-text">Runs inside a constrained sandbox. Safe built-ins like <code>print</code>, <code>len</code>, <code>range</code>, and <code>enumerate</code> are available.</p>
+                        <ul class="panel-highlights">
+                            <li>Instant architecture briefings</li>
+                            <li>Deep-dive vulnerability reports</li>
+                            <li>Executable trace storytelling</li>
+                        </ul>
+                        <div class="architect-upload">
+                            <h3 class="panel-title">The Architect Upload</h3>
+                            <p class="panel-subtitle">Upload an entire project (.zip) to map every module, dependency, and SQL query.</p>
+                            <div class="upload-controls">
+                                <input type="file" id="project-zip-input" accept=".zip" class="upload-input" aria-label="Project zip upload">
+                                <button id="upload-zip-button" class="cyber-button secondary-action" type="button">Upload Project .zip</button>
+                            </div>
+                            <p id="project-upload-status" class="helper-text subtle"></p>
+                        </div>
+                    </div>
+                    <aside id="live-dashboard" class="dashboard-column" aria-label="Live metrics dashboard">
+                        <div class="dashboard-card health-card">
+                            <div class="card-label">Health Score</div>
+                            <div id="health-score" class="health-score-value">--</div>
+                            <p class="card-caption">Updated as you type</p>
+                        </div>
+                        <div class="dashboard-card complexity-card">
+                            <div class="card-label">Complexity</div>
+                            <canvas id="complexity-chart" height="160" aria-label="Complexity bar chart"></canvas>
+                        </div>
+                        <div class="dashboard-card stats-card">
+                            <div class="card-label">Vital Stats</div>
+                            <ul class="stats-list">
+                                <li><span>Lines of Code</span><strong id="loc-stat">0</strong></li>
+                                <li><span>Comment Ratio</span><strong id="comment-ratio-stat">0%</strong></li>
+                                <li><span>Function Count</span><strong id="function-count-stat">0</strong></li>
+                            </ul>
+                        </div>
+                    </aside>
                 </div>
-                <label for="trace-input" class="input-label subtle">Optional runtime invocation</label>
-                <div class="code-container trace-shell">
-                    <textarea id="trace-input" class="trace-area" placeholder="Optional: e.g., result = main(); print(result)" spellcheck="false" aria-label="Trace input area"></textarea>
-                </div>
-                <p class="helper-text">Runs inside a constrained sandbox. Safe built-ins like <code>print</code>, <code>len</code>, <code>range</code>, and <code>enumerate</code> are available.</p>
+            </section>
+            <section class="panel panel-controls">
                 <div class="button-row">
                     <button id="analyze-button" class="cyber-button primary-action">Analyze Code</button>
                     <div id="loader" class="loader" style="display: none;"></div>
-                </div>
-                <ul class="panel-highlights">
-                    <li>Instant architecture briefings</li>
-                    <li>Deep-dive vulnerability reports</li>
-                    <li>Executable trace storytelling</li>
-                </ul>
-                <div class="architect-upload">
-                    <h3 class="panel-title">The Architect Upload</h3>
-                    <p class="panel-subtitle">Upload an entire project (.zip) to map every module, dependency, and SQL query.</p>
-                    <div class="upload-controls">
-                        <input type="file" id="project-zip-input" accept=".zip" class="upload-input" aria-label="Project zip upload">
-                        <button id="upload-zip-button" class="cyber-button secondary-action" type="button">Upload Project .zip</button>
-                    </div>
-                    <p id="project-upload-status" class="helper-text subtle"></p>
                 </div>
             </section>
             <section class="panel panel-results">
@@ -119,6 +147,7 @@
             </div>
         </div>
     </div>
+    <script>document.addEventListener("DOMContentLoaded", function() { if(window.CanvasEffect) window.CanvasEffect.init(); });</script>
 </body>
 </html>
 

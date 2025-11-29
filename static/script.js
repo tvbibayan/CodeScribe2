@@ -3,6 +3,14 @@ document.addEventListener('DOMContentLoaded', () => {
         mermaid.initialize({ startOnLoad: false, theme: 'neutral' });
     }
 
+    const debounce = (fn, delay = 500) => {
+        let timerId;
+        return (...args) => {
+            clearTimeout(timerId);
+            timerId = setTimeout(() => fn(...args), delay);
+        };
+    };
+
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
 
@@ -21,6 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const visualizerOutput = document.getElementById('visualizer-output');
     const databaseOutput = document.getElementById('database-output');
 
+    const healthScoreEl = document.getElementById('health-score');
+    const locStatEl = document.getElementById('loc-stat');
+    const commentRatioEl = document.getElementById('comment-ratio-stat');
+    const functionCountEl = document.getElementById('function-count-stat');
+    const complexityCanvas = document.getElementById('complexity-chart');
+
     const modalOverlay = document.getElementById('modal-overlay');
     const modalTitle = document.getElementById('modal-title');
     const modalCode = document.getElementById('modal-code');
@@ -28,12 +42,127 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalCopyButton = modalOverlay.querySelector('.modal-copy-button');
 
     let lastSubmittedCode = '';
+    let complexityChart;
+
+    const createComplexityChart = () => {
+        if (!complexityCanvas || typeof Chart === 'undefined') {
+            return null;
+        }
+
+        const context = complexityCanvas.getContext('2d');
+        return new Chart(context, {
+            type: 'bar',
+            data: {
+                labels: ['Average', 'Maximum'],
+                datasets: [
+                    {
+                        label: 'Cyclomatic Complexity',
+                        data: [0, 0],
+                        backgroundColor: ['rgba(234, 88, 12, 0.7)', 'rgba(13, 148, 136, 0.7)'],
+                        borderRadius: 12,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.06)',
+                        },
+                        ticks: {
+                            color: 'rgba(87, 83, 78, 0.9)',
+                        },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.08)',
+                        },
+                        ticks: {
+                            color: 'rgba(87, 83, 78, 0.9)',
+                        },
+                    },
+                },
+            },
+        });
+    };
+
+    complexityChart = createComplexityChart();
 
     const setUploadStatus = (message) => {
         if (projectUploadStatus) {
             projectUploadStatus.textContent = message;
         }
     };
+
+    const getSafeNumber = (value) => {
+        const parsed = typeof value === 'number' ? value : Number(value);
+        return Number.isFinite(parsed) ? parsed : 0;
+    };
+
+    const calculateFunctionCount = (source) => {
+        if (!source) return 0;
+        const fnMatches = source.match(/\b(?:def|function)\s+[A-Za-z_$][\w$]*\s*\(/g) || [];
+        return fnMatches.length;
+    };
+
+    const updateHealthScore = (score) => {
+        if (!healthScoreEl) return;
+        if (score === null || typeof score === 'undefined') {
+            healthScoreEl.textContent = '--';
+            healthScoreEl.style.color = '#0d9488';
+            return;
+        }
+        const clamped = Math.max(0, Math.min(100, Math.round(getSafeNumber(score))));
+        healthScoreEl.textContent = String(clamped);
+        let color = '#d97706';
+        if (clamped > 80) {
+            color = '#059669';
+        } else if (clamped < 50) {
+            color = '#dc2626';
+        }
+        healthScoreEl.style.color = color;
+    };
+
+    const updateComplexityChart = (avg, max) => {
+        if (!complexityChart) return;
+        complexityChart.data.datasets[0].data = [getSafeNumber(avg), getSafeNumber(max)];
+        complexityChart.update();
+    };
+
+    const updateVitalStats = (metrics, sourceCode) => {
+        const loc = Math.max(0, Math.round(getSafeNumber(metrics?.loc)));
+        const commentLines = Math.max(0, Math.round(getSafeNumber(metrics?.comment_lines)));
+        const commentRatio = loc > 0 ? (commentLines / loc) * 100 : 0;
+        const functionCount = calculateFunctionCount(sourceCode);
+
+        if (locStatEl) {
+            locStatEl.textContent = loc.toString();
+        }
+        if (commentRatioEl) {
+            commentRatioEl.textContent = `${commentRatio.toFixed(1)}%`;
+        }
+        if (functionCountEl) {
+            functionCountEl.textContent = functionCount.toString();
+        }
+    };
+
+    const resetLiveDashboard = () => {
+        updateHealthScore(null);
+        updateComplexityChart(0, 0);
+        if (locStatEl) locStatEl.textContent = '0';
+        if (commentRatioEl) commentRatioEl.textContent = '0%';
+        if (functionCountEl) functionCountEl.textContent = '0';
+    };
+
+    resetLiveDashboard();
 
     const setActiveTab = (targetTab) => {
         tabButtons.forEach((button) => {
@@ -336,6 +465,51 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     analyzeButton.addEventListener('click', handleAnalyze);
+
+    const refreshLiveMetrics = (metrics, sourceCode) => {
+        if (!metrics) {
+            return;
+        }
+        updateHealthScore(metrics.maintainability_index);
+        updateComplexityChart(
+            metrics.cyclomatic_complexity_avg,
+            metrics.cyclomatic_complexity_max,
+        );
+        updateVitalStats(metrics, sourceCode);
+    };
+
+    const requestLiveMetrics = async () => {
+        if (!codeInput) return;
+        const sourceCode = codeInput.value || '';
+        if (!sourceCode.trim()) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/live-metrics', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: sourceCode }),
+            });
+            const payload = await response.json();
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to fetch live metrics.');
+            }
+            refreshLiveMetrics(payload, sourceCode);
+        } catch (error) {
+            console.error('Live metrics error:', error);
+        }
+    };
+
+    if (codeInput) {
+        const debouncedLiveMetrics = debounce(requestLiveMetrics, 500);
+        codeInput.addEventListener('input', debouncedLiveMetrics);
+        if (codeInput.value.trim()) {
+            requestLiveMetrics();
+        }
+    }
 
     const handleZipUpload = async () => {
         if (!projectZipInput || !uploadZipButton) {

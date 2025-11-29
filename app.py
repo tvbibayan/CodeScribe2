@@ -21,6 +21,9 @@ import graphviz
 import google.generativeai as genai
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
+from radon.complexity import cc_visit
+from radon.metrics import mi_visit
+from radon.raw import analyze as raw_analyze
 
 # --- Load API Key ---
 load_dotenv()
@@ -810,6 +813,61 @@ def generate_test():
     except Exception as exc:
         print(f"An error occurred: {exc}")
         return jsonify({"error": "An internal error occurred."}), 500
+
+
+@app.route('/live-metrics', methods=['POST'])
+def live_metrics():
+    """Return instantaneous code metrics without invoking the LLM."""
+    try:
+        payload = request.get_json() or {}
+        code = (payload.get('code') or '').strip()
+        if not code:
+            return jsonify({"error": "No code provided"}), 400
+        return jsonify(calculate_code_metrics(code))
+    except Exception as exc:
+        print(f"Live metrics error: {exc}")
+        return jsonify({"error": "Failed to calculate metrics."}), 500
+
+
+def calculate_code_metrics(code_str: str) -> dict[str, float | int]:
+    """Compute quick structural metrics to power the Live Metrics panel."""
+    metrics: dict[str, float | int] = {
+        "cyclomatic_complexity_avg": 0.0,
+        "cyclomatic_complexity_max": 0.0,
+        "maintainability_index": 0.0,
+        "loc": 0,
+        "comment_lines": 0,
+    }
+
+    if not code_str or not code_str.strip():
+        return metrics
+
+    try:
+        blocks = cc_visit(code_str)
+        complexities = [block.complexity for block in blocks]
+        if complexities:
+            metrics["cyclomatic_complexity_avg"] = sum(complexities) / len(complexities)
+            metrics["cyclomatic_complexity_max"] = max(complexities)
+    except Exception:
+        pass
+
+    try:
+        mi_score = mi_visit(code_str, False)
+        if isinstance(mi_score, (int, float)):
+            metrics["maintainability_index"] = max(0.0, min(100.0, mi_score))
+    except Exception:
+        pass
+
+    try:
+        raw_stats = raw_analyze(code_str)
+        metrics["loc"] = raw_stats.loc
+        metrics["comment_lines"] = raw_stats.comments + raw_stats.multi
+    except Exception:
+        lines = code_str.splitlines()
+        metrics["loc"] = sum(1 for line in lines if line.strip())
+        metrics["comment_lines"] = sum(1 for line in lines if line.strip().startswith('#'))
+
+    return metrics
 
 # --- CORS headers to allow requests ---
 @app.after_request
