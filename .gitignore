@@ -16,3 +16,10 @@ __pycache__/
 
 # VS Code
 .vscode/
+
+# JDK / SDK files (should not be in repo)
+*.jdk/
+*.sdk/
+
+# Backup files
+*.backup
