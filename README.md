@@ -129,7 +129,3 @@ MIT License - feel free to use this project for learning and personal use.
 ## Contributing
 
 Contributions are welcome. Feel free to open issues or submit pull requests.
-
----
-
-Built with Flask and Google Gemini AI
