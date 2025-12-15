@@ -121,11 +121,3 @@ The application uses the following environment variables:
 2. Connect your GitHub repo to Railway (https://railway.app)
 3. Add your `GEMINI_API_KEY` as an environment variable
 4. Deploy
-
-## License
-
-MIT License - feel free to use this project for learning and personal use.
-
-## Contributing
-
-Contributions are welcome. Feel free to open issues or submit pull requests.
