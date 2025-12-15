@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeScribe Enterprise - Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+        }
+
+        .login-box {
+            background: var(--bg-panel);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            box-shadow: var(--panel-shadow);
+        }
+
+        .login-box h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            font-size: 1.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.85rem;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+            background: var(--bg-panel-alt);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color var(--transition-smooth);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--aurora-gradient);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+            box-shadow: var(--button-shadow);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(234, 88, 12, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #ef4444;
+            background: #fee2e2;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .demo-credentials {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-soft);
+        }
+
+        .demo-credentials p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-credentials code {
+            background: var(--bg-secondary);
+            color: var(--accent-primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="login-box">
+            <h1>🔐 CodeScribe Enterprise</h1>
+            
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder="Enter username" 
+                        required
+                        autofocus
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter password" 
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="login-btn">Sign In</button>
+            </form>
+
+            <div class="demo-credentials">
+                <p><strong>Demo Credentials:</strong></p>
+                <p>Username: <code>admin</code></p>
+                <p>Password: <code>admin</code></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeScribe Enterprise - Settings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .settings-header h1 {
+            color: var(--text-primary);
+            font-size: 1.75rem;
+        }
+
+        .back-link {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all var(--transition-smooth);
+        }
+
+        .back-link:hover {
+            color: var(--accent-secondary);
+            text-decoration: underline;
+        }
+
+        .settings-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--bg-panel);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--panel-shadow);
+        }
+
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.85rem;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+            background: var(--bg-panel-alt);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all var(--transition-smooth);
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .save-btn, .cancel-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+        }
+
+        .save-btn {
+            background: var(--aurora-gradient);
+            color: white;
+            box-shadow: var(--button-shadow);
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(234, 88, 12, 0.3);
+        }
+
+        .cancel-btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-soft);
+        }
+
+        .cancel-btn:hover {
+            background: var(--border-soft);
+        }
+
+        .success-message {
+            background: #ecfdf5;
+            color: #065f46;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 500;
+            border-left: 4px solid #10b981;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="settings-header">
+            <h1>⚙️ Settings</h1>
+            <a href="{{ url_for('index') }}" class="back-link">← Back to Dashboard</a>
+        </div>
+
+        <div class="settings-container">
+            {% if message %}
+            <div class="success-message">✓ {{ message }}</div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('settings') }}">
+                <div class="form-group">
+                    <label for="api_key">API Key</label>
+                    <input 
+                        type="password" 
+                        id="api_key" 
+                        name="api_key" 
+                        placeholder="Enter your API key"
+                        value="{{ api_key or '' }}"
+                    >
+                    <small>Keep your API key secure. It will be stored in your session.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="temperature">Model Temperature</label>
+                    <input 
+                        type="number" 
+                        id="temperature" 
+                        name="temperature" 
+                        min="0" 
+                        max="1" 
+                        step="0.1"
+                        placeholder="0.3"
+                        value="{{ temperature or '0.3' }}"
+                    >
+                    <small>Controls randomness (0 = deterministic, 1 = creative). Default: 0.3</small>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="save-btn">💾 Save Settings</button>
+                    <a href="{{ url_for('index') }}" class="cancel-btn" style="text-align: center; line-height: 1rem; text-decoration: none;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

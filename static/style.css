@@ -918,3 +918,37 @@ html {
 .glow-text {
     color: var(--text-primary);
 }
+
+/* =============================================
+   Authentication & Settings Pages
+   ============================================= */
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+    background: var(--bg-base);
+}
+
+.auth-container > * {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Navigation Links in Header */
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all var(--transition-smooth);
+    padding: 0.5rem 0;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-link:hover {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+}
+

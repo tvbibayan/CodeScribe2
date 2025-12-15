@@ -1,3 +1,4 @@
+
 """
 CodeScribe Flask Application
 ---------------------------
@@ -19,7 +20,7 @@ from pathlib import Path
 import astor
 import graphviz
 import google.generativeai as genai
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from dotenv import load_dotenv
 from radon.complexity import cc_visit
 from radon.metrics import mi_visit
@@ -150,6 +151,8 @@ def _build_model(system_instruction: str) -> genai.GenerativeModel:
     )
 
 app = Flask(__name__)
+app.secret_key = 'codescribe-secret-key-2025-enterprise'
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max upload
 
 
 @app.route('/')
@@ -157,7 +160,10 @@ def index():
     """
     Home page route.
     Renders the main code documentation interface.
+    Requires user to be logged in.
     """
+    if 'user' not in session:
+        return redirect(url_for('login'))
     return render_template('index.html')
 
 def get_ai_documentation(code_str: str) -> str:
@@ -876,6 +882,52 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST')
     return response
+
+# --- Authentication Routes ---
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Handle user login"""
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # Simple authentication check
+        if username == 'admin' and password == 'admin':
+            session['user'] = username
+            return redirect(url_for('index'))
+        else:
+            return render_template('login.html', error='Invalid username or password')
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    """Handle user logout"""
+    session.clear()
+    return redirect(url_for('login'))
+
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    """Handle user settings"""
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        api_key = request.form.get('api_key')
+        temperature = request.form.get('temperature')
+        
+        # Save settings to session
+        session['api_key'] = api_key
+        session['temperature'] = temperature
+        session.modified = True
+        
+        return render_template('settings.html', message='Settings saved successfully!')
+    
+    api_key = session.get('api_key', '')
+    temperature = session.get('temperature', '0.3')
+    
+    return render_template('settings.html', api_key=api_key, temperature=temperature)
 
 # --- Main Entrypoint ---
 if __name__ == '__main__':
